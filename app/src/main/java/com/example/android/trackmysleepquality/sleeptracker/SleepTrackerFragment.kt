@@ -22,7 +22,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.android.trackmysleepquality.R
+import com.example.android.trackmysleepquality.database.SleepDatabase
 import com.example.android.trackmysleepquality.databinding.FragmentSleepTrackerBinding
 
 /**
@@ -37,12 +39,28 @@ class SleepTrackerFragment : Fragment() {
      *
      * This function uses DataBindingUtil to inflate R.layout.fragment_sleep_quality.
      */
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         // Get a reference to the binding object and inflate the fragment views.
-        val binding: FragmentSleepTrackerBinding = DataBindingUtil.inflate(
-                inflater, R.layout.fragment_sleep_tracker, container, false)
+        val binding: FragmentSleepTrackerBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_sleep_tracker, container, false)
+
+        // Reference to application that this fragment is attached to pass into ViewModelFactory provider. requireNotNull throws illegal argument exception if value is not null
+        val application = requireNotNull(this.activity).application
+
+        // Reference to data source by using Dao
+        val dataSource = SleepDatabase.getInstance(application).sleepDatabaseDao
+
+        // Instance of ViewModelFactory
+        val viewModelFactory = SleepTrackerViewModelFactory(dataSource, application)
+
+        // Get SleepTracker ViewModel
+        val sleepTrackerViewModel = ViewModelProvider(this, viewModelFactory).get(SleepTrackerViewModel::class.java)
+
+        // Bind ViewModel to layout var
+        binding.sleepTrackerViewModel = sleepTrackerViewModel
+
+        // Specify current activity as the lifecycle owner of the binding, this is so binding can observe LiveData updates
+        binding.lifecycleOwner = this;
 
         return binding.root
     }

@@ -38,7 +38,7 @@ interface SleepDatabaseDao {
     suspend fun clear() // This function will delete all rows in the table, without deleting the table itself
 
     @Query("SELECT * FROM daily_sleep_quality_table ORDER BY nightId DESC")
-    suspend fun getAllNights(): LiveData<List<SleepNight>> // Room makes sure that this LiveData is updated anytime the db is updated. This means that we only need to get this list of all nights once, attach an observer to it, the UI will update itself using the data without us having to get it again
+    fun getAllNights(): LiveData<List<SleepNight>> // Room makes sure that this LiveData is updated anytime the db is updated. This means that we only need to get this list of all nights once, attach an observer to it, the UI will update itself using the data without us having to get it again
 
     @Query("SELECT * FROM daily_sleep_quality_table ORDER BY nightId DESC LIMIT 1") // Return latest night by sorting through all nights. Returns highest id which should be most recent
     suspend fun getTonight(): SleepNight? // The return type is nullable because in the beginning AND after we clear all contents, they will be no latest night
